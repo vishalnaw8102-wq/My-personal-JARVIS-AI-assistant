@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JARVIS V5</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #080b12;
+      color: white;
+      min-height: 100vh;
+    }
+
+    .app {
+      max-width: 600px;
+      margin: auto;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 22px;
+      text-align: center;
+      background: #101622;
+      border-bottom: 1px solid #263044;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    header p {
+      margin: 6px 0 0;
+      color: #9da9bd;
+    }
+
+    #chat {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .message {
+      padding: 12px 15px;
+      margin: 10px 0;
+      border-radius: 15px;
+      max-width: 85%;
+      line-height: 1.5;
+    }
+
+    .jarvis {
+      background: #172033;
+      margin-right: auto;
+    }
+
+    .user {
+      background: #243b68;
+      margin-left: auto;
+    }
+
+    .controls {
+      padding: 15px;
+      background: #101622;
+      border-top: 1px solid #263044;
+      display: flex;
+      gap: 8px;
+    }
+
+    input {
+      flex: 1;
+      padding: 14px;
+      border-radius: 25px;
+      border: 1px solid #34415a;
+      background: #080b12;
+      color: white;
+      outline: none;
+    }
+
+    button {
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    #send {
+      background: #3158c9;
+      color: white;
+    }
+
+    #mic {
+      background: #263044;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <header>
+    <h1>JARVIS V5</h1>
+    <p>Personal AI Assistant</p>
+  </header>
+
+  <div id="chat">
+    <div class="message jarvis">
+      Ji Sir, main ready hoon. 🤖
+    </div>
+  </div>
+
+  <div class="controls">
+    <input id="input" type="text" placeholder="Jarvis se baat karein...">
+    <button id="mic">🎤</button>
+    <button id="send">➤</button>
+  </div>
+
+</div>
+
+<script>
+
+const input = document.getElementById("input");
+const chat = document.getElementById("chat");
+const send = document.getElementById("send");
+const mic = document.getElementById("mic");
+
+function addMessage(text, type) {
+  const message = document.createElement("div");
+  message.className = "message " + type;
+  message.textContent = text;
+
+  chat.appendChild(message);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function speak(text) {
+  if ("speechSynthesis" in window) {
+    const voice = new SpeechSynthesisUtterance(text);
+    voice.lang = "hi-IN";
+    voice.rate = 0.95;
+    voice.pitch = 1;
+    speechSynthesis.speak(voice);
+  }
+}
+
+function jarvisReply(text) {
+
+  const command = text.toLowerCase();
+
+  if (
+    command.includes("jarvis") &&
+    (command.includes("ready") || command.includes("तैयार"))
+  ) {
+    return "Ji Sir, main ready hoon.";
+  }
+
+  if (command.includes("hello") || command.includes("हेलो")) {
+    return "Hello Sir. Main JARVIS V5 hoon.";
+  }
+
+  if (command.includes("time") || command.includes("समय")) {
+    return "Sir, abhi " +
+      new Date().toLocaleTimeString("en-IN");
+  }
+
+  if (command.includes("date") || command.includes("तारीख")) {
+    return "Aaj ki date hai " +
+      new Date().toLocaleDateString("en-IN");
+  }
+
+  return "Ji Sir, maine aapki baat suni. AI brain abhi develop ho raha hai.";
+}
+
+function processCommand() {
+
+  const text = input.value.trim();
+
+  if (!text) return;
+
+  addMessage(text, "user");
+
+  input.value = "";
+
+  const reply = jarvisReply(text);
+
+  setTimeout(() => {
+    addMessage(reply, "jarvis");
+    speak(reply);
+  }, 400);
+}
+
+send.addEventListener("click", processCommand);
+
+input.addEventListener("keydown", function(event) {
+  if (event.key === "Enter") {
+    processCommand();
+  }
+});
+
+let recognition;
+
+if ("webkitSpeechRecognition" in window) {
+
+  recognition = new webkitSpeechRecognition();
+
+  recognition.lang = "hi-IN";
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  recognition.onresult = function(event) {
+
+    const text =
+      event.results[0][0].transcript;
+
+    input.value = text;
+
+    processCommand();
+  };
+
+  recognition.onerror = function() {
+    addMessage("Sir, voice input mein problem aa gayi.", "jarvis");
+  };
+
+  mic.addEventListener("click", function() {
+    recognition.start();
+  });
+
+} else {
+
+  mic.addEventListener("click", function() {
+    alert("Is browser mein voice recognition available nahi hai.");
+  });
+
+}
+
+</script>
+
+</body>
+</html>
