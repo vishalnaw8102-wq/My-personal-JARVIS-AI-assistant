@@ -183,7 +183,7 @@ function jarvisReply(text) {
   return "Ji Sir, maine aapki baat suni. AI brain abhi develop ho raha hai.";
 }
 
-function processCommand() {
+async function processCommand() {
 
   const text = input.value.trim();
 
@@ -193,12 +193,45 @@ function processCommand() {
 
   input.value = "";
 
-  const reply = jarvisReply(text);
+  addMessage("Ji Sir, soch raha hoon... 🤖", "jarvis");
 
-  setTimeout(() => {
-    addMessage(reply, "jarvis");
-    speak(reply);
-  }, 400);
+  try {
+
+    const response = await fetch(
+      "https://mypersonaljarvisaibrain.vishalnaw8102.workers.dev/chat",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message: text
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    const messages = document.querySelectorAll(".message.jarvis");
+    const lastMessage = messages[messages.length - 1];
+
+    if (data.reply) {
+      lastMessage.textContent = data.reply;
+      speak(data.reply);
+    } else {
+      lastMessage.textContent =
+        data.error || "Sorry Sir, response nahi mila.";
+    }
+
+  } catch (error) {
+
+    const messages = document.querySelectorAll(".message.jarvis");
+    const lastMessage = messages[messages.length - 1];
+
+    lastMessage.textContent =
+      "Sir, AI brain se connection nahi ho pa raha.";
+
+  }
 }
 
 send.addEventListener("click", processCommand);
