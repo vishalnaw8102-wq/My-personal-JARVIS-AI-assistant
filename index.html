@@ -155,33 +155,6 @@ function speak(text) {
   }
 }
 
-function jarvisReply(text) {
-
-  const command = text.toLowerCase();
-
-  if (
-    command.includes("jarvis") &&
-    (command.includes("ready") || command.includes("तैयार"))
-  ) {
-    return "Ji Sir, main ready hoon.";
-  }
-
-  if (command.includes("hello") || command.includes("हेलो")) {
-    return "Hello Sir. Main JARVIS V5 hoon.";
-  }
-
-  if (command.includes("time") || command.includes("समय")) {
-    return "Sir, abhi " +
-      new Date().toLocaleTimeString("en-IN");
-  }
-
-  if (command.includes("date") || command.includes("तारीख")) {
-    return "Aaj ki date hai " +
-      new Date().toLocaleDateString("en-IN");
-  }
-
-  return "Ji Sir, maine aapki baat suni. AI brain abhi develop ho raha hai.";
-}
 
 async function processCommand() {
 
